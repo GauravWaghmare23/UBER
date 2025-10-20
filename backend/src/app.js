@@ -5,6 +5,8 @@ import express from "express";
 import cors from "cors";
 import connectToDB from "./db/db.js"; // Your database connection logic
 import userRoutes from "./routes/user.route.js";
+import cookieParser from "cookie-parser";
+import captainRoutes from "./routes/captain.route.js";
 
 connectToDB();
 
@@ -13,11 +15,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(cookieParser());
 
 
 //user routes 
 
 app.use("/users", userRoutes);
+app.use("/captains", captainRoutes);
 
 
 export default app;
