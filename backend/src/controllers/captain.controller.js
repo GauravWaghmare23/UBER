@@ -77,7 +77,7 @@ async function loginCaptain(req, res) {
     
         res.cookie("token", token, { httpOnly: true });
     
-        res.status(200).json({ message: "Login successful", captain, token });
+        res.status(201).json({ message: "Login successful", captain, token });
     } catch (error) {
         return res.status(500).json({ message: error.message || "Server error" });
     }
@@ -88,7 +88,7 @@ async function getCaptain(req, res) {
 
     const captain = await captainModel.findById(captainProfile._id).select("-password");
 
-    res.status(200).json({ captain });
+    res.status(201).json({ captain });
 }
 
 async function logoutCaptain(req, res) {
@@ -103,7 +103,7 @@ async function logoutCaptain(req, res) {
 
     await blacklistTokenModel.create({ token });
 
-    res.status(200).json({ message: "Logout successful" });
+    res.status(201).json({ message: "Logout successful" });
 }
 
 export { captainRegister, loginCaptain, getCaptain, logoutCaptain };

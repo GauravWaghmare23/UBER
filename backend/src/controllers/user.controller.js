@@ -63,7 +63,7 @@ async function loginUser(req, res) {
 
         res.cookie("token", token, { httpOnly: true });
 
-        res.status(200).json({ message: "Login successful", user, token });
+        res.status(201).json({ message: "Login successful", user, token });
     } catch (error) {
         return res.status(500).json({ message: error.message || "Server error" });
     }
@@ -76,7 +76,7 @@ async function userProfile(req, res) {
 
     const user = await userModel.findById(userProfile._id).select("-password");
 
-    res.status(200).json({ user });
+    res.status(201).json({ user });
 }
 
 async function logoutUser(req, res) {
@@ -90,6 +90,6 @@ async function logoutUser(req, res) {
 
     await blacklistTokenModel.create({ token });
 
-    res.status(200).json({ message: "Logout successful" });
+    res.status(201).json({ message: "Logout successful" });
 }
 export { registerUser, loginUser, userProfile, logoutUser };
