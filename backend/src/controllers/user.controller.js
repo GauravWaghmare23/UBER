@@ -13,13 +13,26 @@ async function registerUser(req, res) {
             return res.status(400).json({ errors: errors.array() });
         }
         const { fullName: { firstName, lastName }, email, password } = req.body;
+
+        if (!firstName || !password || !email) {
+            
+            return res.status(400).json({ message: "All required fields" });
+
+        }
+
+        const userExists = await userModel.findOne({ email });
+        if (userExists) {
+
+            return res.status(400).json({ message: "User already exists" });
+
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await createUser({ firstName, lastName, email, password: hashedPassword });
 
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-        res.cookie("token", token, { httpOnly: true }); 
+        res.cookie("token", token, { httpOnly: true });
         res.status(201).json({ message: "User created successfully", user, token });
     } catch (error) {
         res.status(500).json({ message: error.message || "Server error" });
@@ -27,13 +40,13 @@ async function registerUser(req, res) {
 }
 
 async function loginUser(req, res) {
-    
+
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
-    
+
         const { email, password } = req.body;
 
         const user = await userModel.findOne({ email }).select("+password");
@@ -47,7 +60,7 @@ async function loginUser(req, res) {
         }
 
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-        
+
         res.cookie("token", token, { httpOnly: true });
 
         res.status(200).json({ message: "Login successful", user, token });
@@ -59,7 +72,11 @@ async function loginUser(req, res) {
 }
 
 async function userProfile(req, res) {
-    res.status(200).json(req.user)
+    const userProfile = req.user;
+
+    const user = await userModel.findById(userProfile._id).select("-password");
+
+    res.status(200).json({ user });
 }
 
 async function logoutUser(req, res) {
@@ -75,4 +92,4 @@ async function logoutUser(req, res) {
 
     res.status(200).json({ message: "Logout successful" });
 }
-export { registerUser,loginUser,userProfile, logoutUser };
+export { registerUser, loginUser, userProfile, logoutUser };
