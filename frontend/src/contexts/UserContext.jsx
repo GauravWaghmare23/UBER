@@ -1,28 +1,9 @@
-import { createContext, useContext, useState, useEffect } from "react"
-import axios from "axios"
+import { createContext, useContext, useState } from "react"
 
 const UserContext = createContext()
 
 const UserContextProvider = ({ children }) => {
     const [user, setUser] = useState(null)
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            const role = localStorage.getItem("role")
-            if (role !== "user") return
-            try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile`, {
-                    withCredentials: true
-                })
-                setUser(res.data.user)
-            } catch (err) {
-                console.log(err)
-                setUser(null)
-            }
-        }
-
-        fetchUser()
-    }, [setUser, user])
 
     return (
         <UserContext.Provider value={{ user, setUser }}>

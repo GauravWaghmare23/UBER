@@ -1,15 +1,17 @@
-import React from 'react'
-import { Route, Routes } from 'react-router-dom'
-import Home from './pages/Home'
-import UserRegister from './pages/UserRegister'
-import UserLogin from './pages/UserLogin'
-import CaptainRegister from './pages/CaptainRegister'
-import CaptainLogin from './pages/CaptainLogin'
-import Start from './pages/Start'
-import ProtectedRoute from './protectedRoutes/ProtectedRoute'
-import NonProtectedRoute from './protectedRoutes/NonProtectedRoute'
-import NotFound from './pages/NotFound'
-import CaptainHome from './pages/CaptainHome'
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import UserRegister from './pages/UserRegister';
+import UserLogin from './pages/UserLogin';
+import CaptainRegister from './pages/CaptainRegister';
+import CaptainLogin from './pages/CaptainLogin';
+import Start from './pages/Start';
+import NotFound from './pages/NotFound';
+import CaptainHome from './pages/CaptainHome';
+import UserProtectWrapper from './protectedRoutes/UserProtectWrapper';
+import CaptainProtectWrapper from './protectedRoutes/CaptainProtectWrapper';
+import NonProtectedWrapper from './protectedRoutes/NonProtectedWrapper';
+import 'remixicon/fonts/remixicon.css'
 
 const App = () => {
   return (
@@ -19,41 +21,41 @@ const App = () => {
         <Route
           path="/"
           element={
-            <NonProtectedRoute>
+            <NonProtectedWrapper>
               <Start />
-            </NonProtectedRoute>
+            </NonProtectedWrapper>
           }
         />
         <Route
           path="/user-register"
           element={
-            <NonProtectedRoute>
+            <NonProtectedWrapper>
               <UserRegister />
-            </NonProtectedRoute>
+            </NonProtectedWrapper>
           }
         />
         <Route
           path="/user-login"
           element={
-            <NonProtectedRoute>
+            <NonProtectedWrapper>
               <UserLogin />
-            </NonProtectedRoute>
+            </NonProtectedWrapper>
           }
         />
         <Route
           path="/captain-register"
           element={
-            <NonProtectedRoute>
+            <NonProtectedWrapper>
               <CaptainRegister />
-            </NonProtectedRoute>
+            </NonProtectedWrapper>
           }
         />
         <Route
           path="/captain-login"
           element={
-            <NonProtectedRoute>
+            <NonProtectedWrapper>
               <CaptainLogin />
-            </NonProtectedRoute>
+            </NonProtectedWrapper>
           }
         />
 
@@ -61,17 +63,17 @@ const App = () => {
         <Route
           path="/home"
           element={
-            <ProtectedRoute role="user">
+            <UserProtectWrapper>
               <Home />
-            </ProtectedRoute>
+            </UserProtectWrapper>
           }
         />
         <Route
           path="/captain-home"
           element={
-            <ProtectedRoute role="captain">
+            <CaptainProtectWrapper>
               <CaptainHome />
-            </ProtectedRoute>
+            </CaptainProtectWrapper>
           }
         />
 
@@ -79,7 +81,7 @@ const App = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
