@@ -105,7 +105,7 @@ const Home = () => {
 
     // --- Component JSX ---
     return (
-        <div className='h-screen w-screen relative overflow-hidden'>
+        <div className='h-screen w-screen relative overflow-hidden rounded-t-2xl'>
             <img className='w-20 absolute left-4' src="https://cdn-icons-png.flaticon.com/128/5969/5969183.png" alt="" />
             <div className='h-full w-full'>
                 <img className='h-full w-full object-cover' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0gjBf1FfBqt8CfC2GaDdvtNUtCDmsHeTKaw&s" alt="" />
@@ -137,22 +137,22 @@ const Home = () => {
             </div>
             
             {/* Vehicle Panel - Has 'translate-y-full' */}
-            <div ref={vehiclePanelRef} className="fixed bottom-0 z-10 translate-y-full w-full bg-white px-4 py-3">
+            <div ref={vehiclePanelRef} className="fixed bottom-0 z-10 rounded-t-2xl translate-y-full w-full bg-white px-4 py-3">
                 <VehiclePanel setVehiclePanel={setVehiclePanel} setConfirmRidePanel={setConfirmRidePanel} />
             </div>
             
             {/* FIX: Confirm Ride Panel - Added 'translate-y-full' */}
-            <div ref={confirmRidePanelRef} className="fixed bottom-0 z-10 translate-y-full w-full bg-white py-3">
+            <div ref={confirmRidePanelRef} className="fixed bottom-0 z-10 translate-y-full rounded-t-2xl w-full bg-white py-3">
                 <ConfirmRide setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} setLookingDriverPanel={setLookingDriverPanel} />
             </div>
             
             {/* FIX: Looking For Driver Panel - Added 'translate-y-full' */}
-            <div ref={lookingDriverRef} className="fixed bottom-0 z-10 translate-y-full w-full bg-white py-3">
+            <div ref={lookingDriverRef} className="fixed bottom-0 z-10 translate-y-full rounded-t-2xl w-full bg-white py-3">
                 <LookingForDriver setLookingDriverPanel={setLookingDriverPanel} />
             </div>
             
             {/* Waiting For Driver Panel - Missing 'translate-y-full' but has correct GSAP. Added 'translate-y-full' for consistency/safety */}
-            <div ref={waitingDriverRef} className="fixed bottom-0 z-10 translate-y-full w-full bg-white">
+            <div ref={waitingDriverRef} className="fixed bottom-0 z-10 translate-y-full rounded-t-2xl w-full bg-white">
                 <WaitingForDriver setWaitingDriverPanel={setWaitingDriverPanel} />
             </div>
         </div>

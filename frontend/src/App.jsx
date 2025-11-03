@@ -12,6 +12,8 @@ import UserProtectWrapper from './protectedRoutes/UserProtectWrapper';
 import CaptainProtectWrapper from './protectedRoutes/CaptainProtectWrapper';
 import NonProtectedWrapper from './protectedRoutes/NonProtectedWrapper';
 import 'remixicon/fonts/remixicon.css'
+import Riding from './pages/Riding';
+import CaptainRiding from './pages/CaptainRiding';
 
 const App = () => {
   return (
@@ -74,6 +76,22 @@ const App = () => {
             <CaptainProtectWrapper>
               <CaptainHome />
             </CaptainProtectWrapper>
+          }
+        />
+        <Route
+          path="/captain-riding"
+          element={
+            <CaptainProtectWrapper>
+              <CaptainRiding />
+            </CaptainProtectWrapper>
+          }
+        />
+        <Route
+          path="/riding"
+          element={
+            <UserProtectWrapper>
+              <Riding />
+            </UserProtectWrapper>
           }
         />
 

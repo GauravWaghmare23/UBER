@@ -1,50 +1,78 @@
-import React from 'react';
-import CaptainLogout from '../components/CaptainLogout';
-import { useCaptainData } from '../contexts/CaptainContext';
+import React, { useRef, useState } from 'react';
+import CaptainDetails from '../components/CaptainDetails';
+import RidePopUp from '../components/RidePopUp';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import ConfirmRidePopUp from '../components/ConfirmRidePopUp';
 
 const CaptainHome = () => {
-    const { captain } = useCaptainData();
 
-    if (!captain) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <div className="text-gray-600 text-lg">Loading captain profile...</div>
-            </div>
-        );
+  const [ridePopupPanel, setRidePopupPanel] = useState(false);
+  const ridePopupPanelRef = useRef(null);
+  const [confirmRidePopupPanel,setConfirmRidePopupPanel] = useState(false);
+  const confirmRidePopupPanelRef = useRef(null);
+
+  useGSAP(function () {
+    if (ridePopupPanel) {
+      gsap.to(ridePopupPanelRef.current, {
+        transform: "translateY(0%)",
+      })
+    } else {
+      gsap.to(ridePopupPanelRef.current, {
+        transform: "translateY(100%)",
+      })
     }
+  }, [ridePopupPanel])
 
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
-                <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Welcome Captain</h1>
-                <div className="space-y-4 text-gray-700">
-                    <div>
-                        <span className="font-semibold">First Name:</span> {captain.fullName?.firstName}
-                    </div>
-                    <div>
-                        <span className="font-semibold">Last Name:</span> {captain.fullName?.lastName}
-                    </div>
-                    <div>
-                        <span className="font-semibold">Email:</span> {captain.email}
-                    </div>
-                    <div>
-                        <span className="font-semibold">Vehicle Type:</span> {captain.vehicle?.vehicleType}
-                    </div>
-                    <div>
-                        <span className="font-semibold">Plate:</span> {captain.vehicle?.plate}
-                    </div>
-                    <div>
-                        <span className="font-semibold">Color:</span> {captain.vehicle?.color}
-                    </div>
-                    <div>
-                        <span className="font-semibold">Capacity:</span> {captain.vehicle?.capacity}
-                    </div>
+  useGSAP(function () {
+    if (confirmRidePopupPanel) {
+      gsap.to(confirmRidePopupPanelRef.current, {
+        transform: "translateY(0%)",
+      })
+    } else {
+      gsap.to(confirmRidePopupPanelRef.current, {
+        transform: "translateY(100%)",
+      })
+    }
+  }, [confirmRidePopupPanel])
 
-                    <CaptainLogout />
-                </div>
-            </div>
-        </div>
-    );
+  return (
+    <div className="h-screen w-screen flex flex-col relative bg-white rounded-t-2xl overflow-hidden">
+      <img
+        className="w-12 absolute top-4 left-4 z-10"
+        src="https://cdn-icons-png.flaticon.com/128/5969/5969183.png"
+        alt="ride icon"
+      />
+
+      <i className="ri-logout-box-r-line px-2 py-1 absolute top-4 right-4 bg-white rounded-full"></i>
+
+      <div className="h-[75%] w-full">
+        <img
+          className="h-full w-full object-cover"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0gjBf1FfBqt8CfC2GaDdvtNUtCDmsHeTKaw&s"
+          alt="ride"
+        />
+      </div>
+
+      {/* Driver Info Section */}
+
+
+      <div className='rounded-t-2xl'>
+        <CaptainDetails />
+
+      </div>
+
+
+      <div ref={ridePopupPanelRef} className="fixed bottom-0 translate-y-0 z-10 w-full rounded-t-2xl bg-white">
+        <RidePopUp setRidePopupPanel={setRidePopupPanel} setConfirmRidePopupPanel={setConfirmRidePopupPanel} />
+      </div>
+
+
+      <div ref={confirmRidePopupPanelRef} className="fixed bottom-0 translate-y-0 z-10 w-full rounded-t-2xl bg-white">
+        <ConfirmRidePopUp setRidePopupPanel={setRidePopupPanel} setConfirmRidePopupPanel={setConfirmRidePopupPanel} />
+      </div>
+    </div>
+  );
 };
 
 export default CaptainHome;
