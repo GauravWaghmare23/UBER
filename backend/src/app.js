@@ -8,6 +8,7 @@ import userRoutes from "./routes/user.route.js";
 import cookieParser from "cookie-parser";
 import captainRoutes from "./routes/captain.route.js";
 import mapRoutes from "./routes/map.routes.js";
+import rideRoutes from "./routes/ride.routes.js"
 
 connectToDB();
 
@@ -27,6 +28,6 @@ app.use(cookieParser());
 app.use("/users", userRoutes);
 app.use("/captains", captainRoutes);
 app.use("/maps",mapRoutes);
-
+app.use("/rides",rideRoutes);
 
 export default app;

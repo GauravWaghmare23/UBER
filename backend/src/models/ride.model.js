@@ -42,7 +42,12 @@ const rideSchema = new mongoose.Schema({
   signature: {
     type: String,
   },
-});
+  otp: {
+    type: String,
+    select: false,
+    required: true
+  },
+},{timestamps: true});
 
 
 const rideModel = mongoose.models.Ride || mongoose.model("Ride", rideSchema);

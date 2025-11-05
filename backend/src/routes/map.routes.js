@@ -2,7 +2,7 @@ import { authUserMiddleware } from "../middlewares/auth.middleware.js";
 import {
   getCoordinates,
   getSuggestion,
-  getTheTimeDistance,
+  getTheTimeDistanceFare,
 } from "../controllers/map.controller.js";
 import express from "express";
 import { query } from "express-validator";
@@ -20,7 +20,7 @@ router.get(
 );
 
 router.get(
-  "/get-distance-time",
+  "/get-distance-time-fare",
   query("origin")
     .isString()
     .isLength({ min: 3 })
@@ -30,11 +30,17 @@ router.get(
     .isLength({ min: 3 })
     .withMessage("Destination must be at least 3 characters long"),
   authUserMiddleware,
-  getTheTimeDistance
+  getTheTimeDistanceFare
 );
 
-router.get("/get-suggestions",query('input').isString().isLength({ min: 3 }).withMessage("Input must be at least 3 characters long"), authUserMiddleware, getSuggestion);
-
-
+router.get(
+  "/get-suggestions",
+  query("input")
+    .isString()
+    .isLength({ min: 1 })
+    .withMessage("Input must be at least 1 characters long"),
+  authUserMiddleware,
+  getSuggestion
+);
 
 export default router;

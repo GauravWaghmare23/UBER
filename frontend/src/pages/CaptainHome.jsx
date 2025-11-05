@@ -4,13 +4,18 @@ import RidePopUp from '../components/RidePopUp';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import ConfirmRidePopUp from '../components/ConfirmRidePopUp';
+import axios from 'axios';
+import { useCaptainData } from '../contexts/CaptainContext';
+import { useNavigate } from 'react-router-dom';
 
 const CaptainHome = () => {
 
-  const [ridePopupPanel, setRidePopupPanel] = useState(false);
+  const [ridePopupPanel, setRidePopupPanel] = useState(true);
   const ridePopupPanelRef = useRef(null);
   const [confirmRidePopupPanel,setConfirmRidePopupPanel] = useState(false);
   const confirmRidePopupPanelRef = useRef(null);
+  const {setCaptain} = useCaptainData();
+  const navigate = useNavigate();
 
   useGSAP(function () {
     if (ridePopupPanel) {
@@ -35,6 +40,23 @@ const CaptainHome = () => {
       })
     }
   }, [confirmRidePopupPanel])
+
+  const handleLogout = async () => {
+        try {
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/captains/logout`, {
+                withCredentials: true
+            })
+
+            if (res.status === 201) {
+                setCaptain(null)
+                localStorage.removeItem("token")
+                localStorage.removeItem("role")
+                navigate("/captain-login")
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
   return (
     <div className="h-screen w-screen flex flex-col relative bg-white rounded-t-2xl overflow-hidden">

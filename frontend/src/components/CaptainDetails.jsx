@@ -1,8 +1,13 @@
 import React from 'react';
+import { useCaptainData } from '../contexts/CaptainContext';
 
 const CaptainDetails = () => {
+  const {captain} = useCaptainData();
+  if (!captain) {
+    return <div>Loading...</div>;
+  }
   return (
-    <div className="w-full rounded-t-2xl px-4 pt-8">
+    <div className="w-full rounded-t-2xl px-4 pt-8 pb-8">
       {/* Profile Header */}
       <div className="flex items-center justify-between rounded-t-2xl">
         <div className="flex items-center gap-3">
@@ -12,12 +17,12 @@ const CaptainDetails = () => {
             alt="driver"
           />
           <div>
-            <h1 className="text-xl font-semibold">Gaurav Waghmare</h1>
+            <h1 className="text-xl font-semibold">{captain.fullName.firstName} {captain.fullName.lastName}</h1>
             <p className="text-xs text-gray-500">Basic Level</p>
           </div>
         </div>
         <div className="text-right">
-          <h2 className="text-xl font-semibold">5000 Rs.</h2>
+          <h2 className="text-xl font-semibold">₹ 5000</h2>
           <p className="text-xs text-gray-500">Total Earnings</p>
         </div>
       </div>

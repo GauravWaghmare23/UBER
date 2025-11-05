@@ -4,6 +4,7 @@ import {
   getAutoCompleteSuggestions,
   getTimeDistance,
 } from "../services/maps.service.js";
+import { getFare } from "../services/ride.service.js";
 
 async function getCoordinates(req, res) {
   const errors = validationResult(req);
@@ -20,7 +21,7 @@ async function getCoordinates(req, res) {
   }
 }
 
-async function getTheTimeDistance(req, res) {
+async function getTheTimeDistanceFare(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -31,7 +32,8 @@ async function getTheTimeDistance(req, res) {
       res.status(400).json({ message: "All fields are required" });
     }
     const timeDistance = await getTimeDistance(origin, destination);
-    res.status(200).json(timeDistance);
+    const fares = await getFare(origin, destination)
+    res.status(200).json({timeDistance,fares});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -51,4 +53,4 @@ async function getSuggestion(req, res) {
   }
 }
 
-export { getCoordinates, getTheTimeDistance, getSuggestion };
+export { getCoordinates, getTheTimeDistanceFare, getSuggestion };

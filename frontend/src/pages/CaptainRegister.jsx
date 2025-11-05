@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useUserData } from '../contexts/UserContext'
 import axios from 'axios'
+import { useCaptainData } from '../contexts/CaptainContext'
 
 const CaptainRegister = () => {
   const [firstName, setFirstName] = useState("")
@@ -12,8 +12,8 @@ const CaptainRegister = () => {
   const [plate, setPlate] = useState("")
   const [capacity, setCapacity] = useState("")
   const [vehicleType, setVehicleType] = useState("")
-  const { setUser } = useUserData()
   const navigate = useNavigate()
+  const {setCaptain} = useCaptainData();
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -40,7 +40,7 @@ const CaptainRegister = () => {
 
       if (res.status === 201) {
         const data = res.data
-        setUser(data)
+        setCaptain(data)
         localStorage.setItem("token", data.token)
         localStorage.setItem("role", "captain") 
         navigate("/captain-home")

@@ -17,27 +17,26 @@ const ConfirmRide = (props) => {
                     <div className='flex flex-row items-center gap-2'>
                         <h2><i className="ri-map-pin-add-fill ri-xl"></i></h2>
                         <div>
-                            <h2 className='text-2xl font-semibold'>562/ 11-A</h2>
-                            <h4 className='font-normal text-gray-500'>Kaikondhrali, Bengluru, Karnataka</h4>
+                            <h2 className='text-xl font-semibold'>{props.pickup}</h2>
                         </div>
                     </div>
                     <hr className='w-full text-gray-400 my-2' />
                     <div className='flex flex-row items-center gap-2'>
                         <h2><i className="ri-square-fill ri-xl"></i></h2>
                         <div>
-                            <h2 className='text-2xl font-semibold'>Third Wave Coffee</h2>
-                            <h4 className='font-normal text-gray-500'>17th cross roads pwd quarters, 1st Sector, HSR Layout, Bengluru ,Karanataka</h4>
+                            <h2 className='text-xl font-semibold'>{props.destination}</h2>
                         </div>
                     </div>
                     <hr className='w-full text-gray-400 my-2' />
                     <div className='flex flex-row items-center gap-4'>
                         <i className="ri-wallet-fill ri-xl"></i>
-                        <h2 className='text-2xl font-semibold'>Rs.196.89</h2>
+                        <h2 className='text-2xl font-semibold'>₹ {props.selectedFare}</h2>
                     </div>
                 </div>
                 <button onClick={()=>{
                     props.setLookingDriverPanel(true)
                     props.setConfirmRidePanel(false)
+                    props.createRide();
                 }} className='text-xl mt-6 font-medium bg-gray-200 active:bg-gray-500 px-4 py-2 rounded-xl'>Confirm</button>
             </div>
         </div>

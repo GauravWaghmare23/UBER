@@ -2,8 +2,8 @@ import React from 'react'
 
 const WaitingForDriver = (props) => {
     return (
-        <div className='w-full pb-4'>
-            <div className='flex bg-black flex-row items-center justify-between py-4 px-6'>
+        <div className='w-full'>
+            <div className='flex bg-black flex-row items-center justify-between py-3 px-6'>
                 <div>
                     <h1 className='text-white text-2xl font-bold'>Meet at the pickup Point</h1>
                 </div>
