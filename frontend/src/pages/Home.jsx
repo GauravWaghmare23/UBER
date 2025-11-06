@@ -9,6 +9,11 @@ import ConfirmRide from "../components/ConfirmRide";
 import LookingForDriver from "../components/LookingForDriver";
 import WaitingForDriver from "../components/WaitingForDriver";
 import axios from "axios";
+import { useContext } from "react";
+import { socketContext } from "../contexts/SocketContext";
+import { useEffect } from "react";
+import { useUserData } from "../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [pickup, setPickup] = useState("");
@@ -30,6 +35,42 @@ const Home = () => {
   const [fares, setFares] = useState({});
   const [vehicle, setVehicle] = useState("");
   const [selectedFare, setSelectedFare] = useState("loading..");
+  const navigate = useNavigate();
+  const {socket} = useContext(socketContext);
+  const {user,setUser} = useUserData();
+
+
+  useEffect(() => {
+    if (!user || !socket) return;
+    
+    const connectSocket = async () => {
+      try {
+        // Ensure socket is connected
+        if (!socket.connected) {
+          await socket.connect();
+        }
+        
+        // Join user to socket room
+        socket.emit("join", { userType: "user", userId: user._id });
+      } catch (error) {
+        console.error('Socket connection error:', error);
+      }
+    };
+
+    connectSocket();
+
+    // Cleanup function
+    return () => {
+      try {
+        if (socket && socket.connected) {
+          socket.emit('user_disconnect');
+          socket.disconnect();
+        }
+      } catch (error) {
+        console.error('Socket cleanup error:', error);
+      }
+    };
+  }, [socket, user]);
 
   const pickSuggestionHandler = async (e) => {
     setPickup(e.target.value);
@@ -187,14 +228,90 @@ const Home = () => {
     [waitingDriverPanel]
   ); // Removed waitingDriverRef from dependency array
 
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    
+    const handleLogout = async () => {
+        if (isLoggingOut) return; // Prevent double-clicks
+        
+        try {
+            setIsLoggingOut(true);
+            
+            // Clear local storage first
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+
+            // Disconnect socket before logout
+            if (socket && socket.connected) {
+                try {
+                    socket.emit('user_disconnect');
+                    socket.disconnect();
+                } catch (socketError) {
+                    console.error('Socket disconnect error:', socketError);
+                }
+            }
+
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/logout`, {
+                withCredentials: true
+            });
+
+            if (response.status === 201 || response.status === 200) {
+                // Clear all states
+                setPickup("");
+                setDestination("");
+                setVehiclePanel(false);
+                setConfirmRidePanel(false);
+                setLookingDriverPanel(false);
+                setWaitingDriverPanel(false);
+                
+                // Clear user context
+                setUser(null);
+                
+                // Navigate to login page
+                navigate("/user-login", { replace: true });
+            } else {
+                throw new Error('Logout failed: Unexpected response status');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Restore token if logout failed
+            const token = localStorage.getItem("token");
+            if (!token) {
+                localStorage.setItem("token", user?.token || "");
+                localStorage.setItem("role", "user");
+            }
+            const errorMessage = error.response?.data?.message || 'Failed to logout. Please try again.';
+            alert(errorMessage);
+        } finally {
+            setIsLoggingOut(false);
+        }
+    }
+
   // --- Component JSX ---
   return (
     <div className="h-screen w-screen relative overflow-hidden rounded-t-2xl">
-      <img
-        className="w-20 absolute left-4"
-        src="https://cdn-icons-png.flaticon.com/128/5969/5969183.png"
-        alt=""
-      />
+      <div className="flex justify-between items-center absolute w-full p-4 z-10">
+        <img
+          className="w-20"
+          src="https://cdn-icons-png.flaticon.com/128/5969/5969183.png"
+          alt="Logo"
+        />
+        <button 
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className={`flex items-center gap-2 bg-white px-4 py-2 rounded-full transition-colors ${
+            isLoggingOut ? 'opacity-75 cursor-not-allowed' : 'hover:bg-gray-100 active:bg-gray-200'
+          }`}
+        >
+          {isLoggingOut ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-black"></div>
+          ) : (
+            <>
+              <i className="ri-logout-box-r-line text-xl"></i>
+              <span>Logout</span>
+            </>
+          )}
+        </button>
+      </div>
       <div className="h-full w-full">
         <img
           className="h-full w-full object-cover"
@@ -202,22 +319,20 @@ const Home = () => {
           alt=""
         />
       </div>
-      <div className="h-screen w-full flex flex-col justify-end absolute top-0">
-        <div className="h-[30%] relative  bg-white w-full p-4">
-          <h2
+      <div className="h-screen w-full flex flex-col justify-end fixed top-0 z-10">
+        <div className="relative bg-white w-full p-4 shadow-lg transition-all duration-300">
+          <button
             ref={panelClose}
-            onClick={() => {
-              setOpenToggle(false);
-            }}
-            className="absolute right-5 opacity-0"
+            onClick={() => setOpenToggle(false)}
+            className="absolute right-5 top-2 opacity-0 transition-opacity duration-200 hover:opacity-75"
+            aria-label="Close panel"
           >
-            <i className="ri-arrow-down-s-fill text-5xl"></i>
-          </h2>
-          <h2 className="text-2xl font-semibold py-2 mb-4">Find a ride</h2>
+            <i className="ri-close-line text-3xl"></i>
+          </button>
+          <h2 className="text-2xl font-semibold py-2 mb-4">Where to?</h2>
           <form
-            onSubmit={(e) => {
-              handleSubmit(e);
-            }}
+            onSubmit={(e) => handleSubmit(e)}
+            className="space-y-4"
           >
             <input
               onClick={() => {
@@ -289,7 +404,7 @@ const Home = () => {
       {/* FIX: Confirm Ride Panel - Added 'translate-y-full' */}
       <div
         ref={confirmRidePanelRef}
-        className="fixed bottom-0 z-10 translate-y-full rounded-t-2xl w-full bg-white py-3"
+        className="fixed bottom-0 z-10 translate-y-full rounded-t-2xl w-full bg-white"
       >
         <ConfirmRide
           setConfirmRidePanel={setConfirmRidePanel}
@@ -305,7 +420,7 @@ const Home = () => {
       {/* FIX: Looking For Driver Panel - Added 'translate-y-full' */}
       <div
         ref={lookingDriverRef}
-        className="fixed bottom-0 z-10 translate-y-full rounded-t-2xl w-full bg-white py-3"
+        className="fixed bottom-0 translate-y-full w-full bg-white"
       >
         <LookingForDriver
           setLookingDriverPanel={setLookingDriverPanel}

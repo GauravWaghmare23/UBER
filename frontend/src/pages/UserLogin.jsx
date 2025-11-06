@@ -12,13 +12,13 @@ const CaptainLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     const loginUser = { email, password }
-    const res = await axios.post(`${import.meta.env.VITE_API_URL}/users/login`, loginUser, { withCredentials: true });
-    if (res.status == 201) {
-      const data = res.data;
-      setUser(data);
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("role", "user")
-      navigate("/home");
+    const res = await axios.post(`/users/login`, loginUser);
+    if (res.status === 201) {
+      const { user, token } = res.data;
+      setUser(user);
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', 'user');
+      navigate('/home');
     }
     setEmail("")
     setPassword("")

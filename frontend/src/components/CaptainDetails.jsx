@@ -1,10 +1,45 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useCaptainData } from '../contexts/CaptainContext';
+import axios from 'axios';
 
 const CaptainDetails = () => {
-  const {captain} = useCaptainData();
+  const { captain, setCaptain } = useCaptainData();
+
+  useEffect(() => {
+    const fetchCaptainDetails = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/captains/profile`,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        if (response.status === 201) {
+          setCaptain(response.data.captain);
+        }
+      } catch (error) {
+        console.error('Error fetching captain details:', error);
+      }
+    };
+
+    if (!captain) {
+      fetchCaptainDetails();
+    }
+  }, [captain, setCaptain]);
+  
   if (!captain) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full rounded-t-2xl px-4 pt-8 pb-8 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-500"></div>
+      </div>
+    );
   }
   return (
     <div className="w-full rounded-t-2xl px-4 pt-8 pb-8">

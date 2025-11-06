@@ -1,5 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
+import captainModel from '../models/captain.model.js';
 
 dotenv.config();
 
@@ -69,9 +70,9 @@ export const getTimeDistance = async (origin, destination) => {
     }
 }
 
-export const getAutoCompleteSuggestions =async(input)=>{
+export const getAutoCompleteSuggestions = async (input) => {
     if (!input) {
-        throw new Error `the input is empty`;
+        throw new Error('the input is empty');
     }
     const GOOGLE_MAPS_API = process.env.GOOGLE_MAPS_API;
     try {
@@ -95,5 +96,22 @@ export const getAutoCompleteSuggestions =async(input)=>{
             throw new Error(`Geocoding failed: ${error.response.data.error_message || error.response.data.status}`);
         }
         throw error;
+    }
+}
+
+export const getCaptainInTheRadius = async(lat, lng, radius) => {
+    try {
+        const captains = await captainModel.find({
+            location: {
+                $geoWithin: {
+                    $centerSphere: [[lng, lat], radius/6378.1] 
+                }
+            }
+        })
+        
+        return captains;
+    } catch (error) {
+        console.error('Error finding captains:', error);
+        throw new Error('Failed to find nearby captains');
     }
 }

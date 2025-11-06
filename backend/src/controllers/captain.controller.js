@@ -36,7 +36,13 @@ async function captainRegister(req, res) {
 
         const token = jwt.sign({ _id: captain._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-        res.cookie("token", token, { httpOnly: true });
+        // Set cookie to persist for 7 days matching JWT expiry
+        res.cookie("token", token, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production'
+        });
 
         res.status(201).json({ message: "Captain created successfully", captain, token });
 
@@ -74,8 +80,13 @@ async function loginCaptain(req, res) {
         }
     
         const token = jwt.sign({ _id: captain._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-    
-        res.cookie("token", token, { httpOnly: true });
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production'
+        });
     
         res.status(201).json({ message: "Login successful", captain, token });
     } catch (error) {

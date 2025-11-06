@@ -56,7 +56,7 @@ const FinishRide = (props) => {
                     <button  onClick={()=>{
                         naviagte('/captain-home')
                         props.setFinishRidePanel(false)
-                    }} className='w-full py-4 bg-red-600 text-2xl font-extrabold rounded-2xl text-white font-semibold'>Finish Ride</button>
+                    }} className='w-full py-4 bg-red-600 text-2xl rounded-2xl text-white font-semibold'>Finish Ride</button>
                 </div>
             </div>
         </div>

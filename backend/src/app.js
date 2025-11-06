@@ -17,7 +17,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://p62j62jw-5173.inc1.devtunnels.ms',
     credentials: true               
 }))
 app.use(cookieParser());

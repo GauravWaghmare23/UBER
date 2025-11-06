@@ -39,11 +39,11 @@ const CaptainRegister = () => {
       })
 
       if (res.status === 201) {
-        const data = res.data
-        setCaptain(data)
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("role", "captain") 
-        navigate("/captain-home")
+        const { captain, token } = res.data;
+        setCaptain(captain);
+        localStorage.setItem('token', token);
+        localStorage.setItem('role', 'captain');
+        navigate('/captain-home');
       }
     } catch (err) {
       console.error("Registration failed:", err)

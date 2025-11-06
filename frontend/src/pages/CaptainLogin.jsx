@@ -4,24 +4,41 @@ import axios from 'axios'
 import { useCaptainData } from '../contexts/CaptainContext'
 
 const CaptainLogin = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { setCaptain } = useCaptainData();
   const navigate = useNavigate();
 
   const handleSubmit = async(e) => {
-    e.preventDefault()
-    const loginData = { email, password };
-    const res = await axios.post(`${import.meta.env.VITE_API_URL}/captains/login`, loginData, { withCredentials: true });
-    if (res.status == 201) {
-      const data = res.data;
-      setCaptain(data);
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("role", "captain")
-      navigate("/captain-home");
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const loginData = { email, password };
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/captains/login`,
+        loginData,
+        { withCredentials: true }
+      );
+      
+      if (res.status === 201) {
+        const { captain, token } = res.data;
+        setCaptain(captain); // Store the captain object, not the whole response
+        localStorage.setItem("token", token);
+        localStorage.setItem("role", "captain");
+        navigate("/captain-home");
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setEmail("");
+      setPassword("");
+    } finally {
+      setIsLoading(false);
     }
-    setEmail("")
-    setPassword("")
   }
 
 
@@ -61,11 +78,23 @@ const CaptainLogin = () => {
             className='w-full px-4 py-3 mb-6 border border-gray-300 rounded-lg placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black'
           />
 
+          {error && (
+            <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-lg">
+              {error}
+            </div>
+          )}
+          
           <button
             type='submit'
-            className='w-full py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-900 transition'
+            disabled={isLoading}
+            className={`w-full py-3 bg-black text-white rounded-lg font-semibold transition flex items-center justify-center
+              ${isLoading ? 'opacity-75 cursor-not-allowed' : 'hover:bg-gray-900'}`}
           >
-            Login
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+            ) : (
+              'Login'
+            )}
           </button>
 
           <p className='mt-4 text-center text-sm text-gray-600'>

@@ -22,14 +22,14 @@ const UserRegister = () => {
       password
     }
 
-    const res = await axios.post(`${import.meta.env.VITE_API_URL}/users/register`, newUser,{ withCredentials: true });
+    const res = await axios.post(`/users/register`, newUser);
 
     if (res.status === 201) {
-      const data = res.data;
-      setUser(data);
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("role", "user") 
-      navigate("/home");
+      const { user, token } = res.data;
+      setUser(user);
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', 'user');
+      navigate('/home');
     }
 
     setFirstName("")

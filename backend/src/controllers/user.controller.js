@@ -31,8 +31,13 @@ async function registerUser(req, res) {
         const user = await createUser({ firstName, lastName, email, password: hashedPassword });
 
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-        res.cookie("token", token, { httpOnly: true });
+        // Set cookie with same expiry as JWT (7 days) so browser persists it
+        res.cookie("token", token, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production'
+        });
         res.status(201).json({ message: "User created successfully", user, token });
     } catch (error) {
         res.status(500).json({ message: error.message || "Server error" });
@@ -59,9 +64,15 @@ async function loginUser(req, res) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
+
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-        res.cookie("token", token, { httpOnly: true });
+        res.cookie("token", token, {
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production'
+        });
 
         res.status(201).json({ message: "Login successful", user, token });
     } catch (error) {
