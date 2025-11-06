@@ -31,7 +31,7 @@ async function getCoordinates(req, res) {
     const coordinates = await getAddressCoordinate(address);
     return res.status(200).json(coordinates);
   } catch (error) {
-    console.error('Get coordinates error:', error);
+    console.error("Get coordinates error:", error);
     return res.status(500).json({ error: error.message });
   }
 }
@@ -44,14 +44,19 @@ async function getTheTimeDistanceFare(req, res) {
   const { origin, destination } = req.query;
   try {
     if (!origin || !destination) {
-      return res.status(400).json({ message: "Origin and destination are required" });
+      return res
+        .status(400)
+        .json({ message: "Origin and destination are required" });
     }
 
     const timeDistance = await getTimeDistance(origin, destination);
-    if (!timeDistance) return res.status(400).json({ message: 'Could not calculate time/distance' });
+    if (!timeDistance)
+      return res
+        .status(400)
+        .json({ message: "Could not calculate time/distance" });
 
     // Provide fare estimates for supported vehicle types
-    const vehicleTypes = ['standard','premium','suv'];
+    const vehicleTypes = ["standard", "premium", "suv"];
     const fares = {};
     for (const vt of vehicleTypes) {
       fares[vt] = await calculateFare(timeDistance, vt);
@@ -59,7 +64,7 @@ async function getTheTimeDistanceFare(req, res) {
 
     return res.status(200).json({ timeDistance, fares });
   } catch (error) {
-    console.error('Get time-distance-fare error:', error);
+    console.error("Get time-distance-fare error:", error);
     return res.status(500).json({ error: error.message });
   }
 }
@@ -71,11 +76,11 @@ async function getSuggestion(req, res) {
   }
   const { input } = req.query;
   try {
-    if (!input) return res.status(400).json({ message: 'Input is required' });
+    if (!input) return res.status(400).json({ message: "Input is required" });
     const suggestion = await getAutoCompleteSuggestions(input);
     return res.status(200).json(suggestion);
   } catch (error) {
-    console.error('Get suggestions error:', error);
+    console.error("Get suggestions error:", error);
     return res.status(500).json({ error: error.message });
   }
 }

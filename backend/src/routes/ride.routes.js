@@ -33,15 +33,15 @@ router.post(
 );
 
 // Captain accepts a ride
-router.post('/:id/accept', authCaptainMiddleware, acceptRideController);
+router.post("/:id/accept", authCaptainMiddleware, acceptRideController);
 
 // Captain marks ride as started
-router.post('/:id/start', authCaptainMiddleware, startRideController);
+router.post("/:id/start", authCaptainMiddleware, startRideController);
 
 // Captain marks ride as completed
-router.post('/:id/end', authCaptainMiddleware, endRideController);
+router.post("/:id/end", authCaptainMiddleware, endRideController);
 
 // Captain fetches pending rides near them
-router.get('/pending/nearby', authCaptainMiddleware, getPendingRidesForCaptain);
+router.get("/pending/nearby", authCaptainMiddleware, getPendingRidesForCaptain);
 
 export default router;

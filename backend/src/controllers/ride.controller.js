@@ -241,23 +241,28 @@ async function endRideController(req, res) {
 async function getPendingRidesForCaptain(req, res) {
   try {
     const captain = req.captain;
-    if (!captain || !captain.location || !captain.location.coordinates) return res.status(400).json({ message: 'Captain location not available' });
+    if (!captain || !captain.location || !captain.location.coordinates)
+      return res
+        .status(400)
+        .json({ message: "Captain location not available" });
     const [lng, lat] = captain.location.coordinates;
     // radius query: find pending rides whose pickup location is within 15 km
     const radiusKm = 15;
-    const rides = await rideModel.find({
-      status: 'pending',
-      'pickup.location': {
-        $geoWithin: {
-          $centerSphere: [[lng, lat], radiusKm/6378.1]
-        }
-      }
-    }).limit(50);
+    const rides = await rideModel
+      .find({
+        status: "pending",
+        "pickup.location": {
+          $geoWithin: {
+            $centerSphere: [[lng, lat], radiusKm / 6378.1],
+          },
+        },
+      })
+      .limit(50);
 
     return res.status(200).json({ rides });
   } catch (error) {
-    console.error('Get pending rides error:', error);
-    return res.status(500).json({ message: error.message || 'Server error' });
+    console.error("Get pending rides error:", error);
+    return res.status(500).json({ message: error.message || "Server error" });
   }
 }
 
@@ -266,5 +271,5 @@ export {
   acceptRideController,
   startRideController,
   endRideController,
-  getPendingRidesForCaptain
+  getPendingRidesForCaptain,
 };
