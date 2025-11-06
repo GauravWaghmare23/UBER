@@ -4,7 +4,7 @@ import {
   getAutoCompleteSuggestions,
   getTimeDistance,
 } from "../services/maps.service.js";
-import { getFare } from "../services/ride.service.js";
+import { calculateFare } from "../services/ride.service.js";
 
 // Function to get coordinates from an address string
 export async function getAddressCoordinates(address) {
@@ -44,13 +44,23 @@ async function getTheTimeDistanceFare(req, res) {
   const { origin, destination } = req.query;
   try {
     if (!origin || !destination) {
-      res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: "Origin and destination are required" });
     }
+
     const timeDistance = await getTimeDistance(origin, destination);
-    const fares = await getFare(origin, destination)
-    res.status(200).json({timeDistance,fares});
+    if (!timeDistance) return res.status(400).json({ message: 'Could not calculate time/distance' });
+
+    // Provide fare estimates for supported vehicle types
+    const vehicleTypes = ['standard','premium','suv'];
+    const fares = {};
+    for (const vt of vehicleTypes) {
+      fares[vt] = await calculateFare(timeDistance, vt);
+    }
+
+    return res.status(200).json({ timeDistance, fares });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Get time-distance-fare error:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
 
@@ -61,10 +71,12 @@ async function getSuggestion(req, res) {
   }
   const { input } = req.query;
   try {
+    if (!input) return res.status(400).json({ message: 'Input is required' });
     const suggestion = await getAutoCompleteSuggestions(input);
-    res.status(200).json(suggestion);
+    return res.status(200).json(suggestion);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Get suggestions error:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
 

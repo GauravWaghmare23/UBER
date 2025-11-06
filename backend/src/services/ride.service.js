@@ -1,87 +1,63 @@
 import rideModel from "../models/ride.model.js";
 import { getTimeDistance } from "./maps.service.js";
-import crypto from 'crypto'; 
+import crypto from 'crypto';
 
-export async function getFare(pickup, destination) {
-  if (pickup === destination) {
-    throw new Error("Pickup and destination cannot be same");
-  }
-
-  const distanceTime = await getTimeDistance(pickup, destination);
-
-  const baseFare = {
-    auto: 30,
-    car: 50,
-    moto: 20,
-  };
-
-  const perKmRate = {
-    auto: 10,
-    car: 15,
-    moto: 8,
-  };
-
-  const perMinuteRate = {
-    auto: 2,
-    car: 3,
-    moto: 1.5,
-  };
-
-  const fare = {
-    auto: Math.round(
-      baseFare.auto +
-        (distanceTime.distance.value / 1000) * perKmRate.auto +
-        (distanceTime.duration.value / 60) * perMinuteRate.auto
-    ),
-    car: Math.round(
-      baseFare.car +
-        (distanceTime.distance.value / 1000) * perKmRate.car +
-        (distanceTime.duration.value / 60) * perMinuteRate.car
-    ),
-    motorcycle: Math.round(
-      baseFare.moto +
-        (distanceTime.distance.value / 1000) * perKmRate.moto +
-        (distanceTime.duration.value / 60) * perMinuteRate.moto
-    ),
-  };
-
-  return fare;
-}
-
-
-
-export const getOtp = (num) => {
-  function generateOtp(num) {
-    const otp = crypto.randomInt(Math.pow(10, num - 1), Math.pow(10, num)).toString();
-    return otp;
-  }
-  return generateOtp(num); 
-}
-
-
-export const createRide = async ({
-  user,
-  pickup,
-  destination,
-  vehicleType,
-}) => {
-  if (!user || !pickup || !destination || !vehicleType) {
-    throw new Error("All fields are required");
-  }
-
-  const fare = await getFare(pickup, destination);
-
-  const ride = rideModel.create({
-    user,
-    pickup,
-    destination,
-    otp: getOtp(6),
-    fare: fare[vehicleType],
-  });
-
-  return ride;
+const VEHICLE_TYPES = {
+  standard: { baseFare: 50, perKm: 15, perMin: 3 },
+  premium: { baseFare: 80, perKm: 20, perMin: 4 },
+  suv: { baseFare: 100, perKm: 25, perMin: 5 }
 };
 
+export const generateOtp = (digits = 6) => {
+  return crypto.randomInt(Math.pow(10, digits - 1), Math.pow(10, digits)).toString();
+};
 
+export async function calculateFare(timeDistance, vehicleType = 'standard') {
+  if (!timeDistance || !timeDistance.distance || !timeDistance.duration) {
+    throw new Error('Invalid time/distance data');
+  }
+  if (!VEHICLE_TYPES[vehicleType]) {
+    vehicleType = 'standard';
+  }
 
+  const { baseFare, perKm, perMin } = VEHICLE_TYPES[vehicleType];
+  const distanceKm = timeDistance.distance.value / 1000;
+  const durationMin = timeDistance.duration.value / 60;
 
+  const total = Math.round(baseFare + distanceKm * perKm + durationMin * perMin);
+
+  return {
+    total,
+    breakdown: { baseFare, distanceCharge: Math.round(distanceKm * perKm), timeCharge: Math.round(durationMin * perMin) },
+    estimate: { distance: `${Math.round(distanceKm * 10) / 10} km`, duration: `${Math.round(durationMin)} min` }
+  };
+}
+
+export const createRide = async ({ user, pickup, destination, vehicleType, pickupLocation, destinationLocation }) => {
+  if (!user || !pickup || !destination || !vehicleType || !pickupLocation || !destinationLocation) {
+    throw new Error('Missing required ride data');
+  }
+
+  // Get time/distance from maps service
+  const timeDistance = await getTimeDistance(pickup, destination);
+  const fareDetails = await calculateFare(timeDistance, vehicleType);
+
+  const newRide = new rideModel({
+    user,
+    pickup: { address: pickup, location: { type: 'Point', coordinates: pickupLocation.coordinates } },
+    destination: { address: destination, location: { type: 'Point', coordinates: destinationLocation.coordinates } },
+    vehicleType,
+    fare: fareDetails.total,
+    duration: timeDistance.duration.value,
+    distance: timeDistance.distance.value,
+    otp: generateOtp(6)
+  });
+
+  await newRide.save();
+  return newRide.toPublicJSON ? newRide.toPublicJSON() : newRide;
+};
+
+export async function updateRideStatus(rideId, update) {
+  const ride = await rideModel.findByIdAndUpdate(rideId, update, { new: true });
+  return ride;
+};
